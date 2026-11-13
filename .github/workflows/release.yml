@@ -1,0 +1,67 @@
+name: Release
+
+# Two ways to publish a release:
+#   1. Actions tab -> "Release" -> Run workflow   (no terminal needed)
+#   2. Push a tag such as v1.0.0
+# Either way the version comes from versionName in app/build.gradle.kts and the release notes
+# are the matching "## [x.y.z]" section of CHANGELOG.md.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Read app version
+        id: ver
+        run: |
+          VERSION=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME#v}" != "$VERSION" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match versionName $VERSION in app/build.gradle.kts"
+            exit 1
+          fi
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          awk -v ver="${{ steps.ver.outputs.version }}" '
+            $0 ~ "^## \\[" ver "\\]" { found=1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release_notes.md
+          if [ ! -s release_notes.md ]; then
+            echo "No CHANGELOG.md section found for ${{ steps.ver.outputs.version }}"
+            exit 1
+          fi
+          cat release_notes.md
+
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Name the APK
+        run: cp app/build/outputs/apk/release/app-release.apk "Kiro-v${{ steps.ver.outputs.version }}.apk"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: Kiro v${{ steps.ver.outputs.version }}
+          body_path: release_notes.md
+          files: Kiro-v${{ steps.ver.outputs.version }}.apk
