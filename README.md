@@ -4,14 +4,21 @@ Anime streaming app (Home + Search) in the style of your screenshots.
 
 | Layer | Language | Where |
 |---|---|---|
-| UI (Jetpack Compose, Roboto) | Kotlin | `app/src/main/java/com/kiro/app/ui` |
+| UI (Jetpack Compose, Feather icons) | Kotlin | `app/src/main/java/com/kiro/app/ui` |
 | Data: AniList GraphQL client, cache, local history | Java | `app/src/main/java/com/kiro/app/data` |
 | Search ranking engine (JNI) | Rust | `native/` |
 
 ## Run it
 1. Open the `Kiro` folder in Android Studio (Ladybug or newer) and let Gradle sync.
-   Roboto is bundled in `app/src/main/res/font`, so nothing extra is downloaded.
+   Fonts are bundled (Roboto by default), so nothing extra is downloaded.
 2. Press Run on a device or emulator (Android 8.0+).
+
+## Fonts
+The app uses four font slots: light, regular, medium, bold. By default they are Roboto (`fonts/roboto`).
+To use your own fonts, create a `fonts-private` folder next to `app/` and add four files named
+`light`, `regular`, `medium`, `bold` (`.ttf` or `.otf`), then rebuild. The build log prints which font each slot uses
+(`Kiro fonts: ...`). `fonts-private/` is git-ignored, so fonts you are licensed to use but cannot redistribute
+stay out of the public repository and out of GitHub release builds, which always use Roboto.
 
 ## Rust search engine (optional)
 Without it the app uses an identical Kotlin ranker, so everything still works.

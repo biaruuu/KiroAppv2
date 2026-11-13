@@ -8,3 +8,5 @@ captures/
 .cxx/
 native/target/
 app/src/main/jniLibs/
+# Your own (possibly licensed) fonts - see README "Fonts"
+fonts-private/

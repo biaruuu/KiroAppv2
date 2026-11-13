@@ -40,6 +40,9 @@ android {
     buildFeatures {
         compose = true
     }
+
+    // Fonts are generated at build time into build/generated/fonts (see prepareFonts below).
+    sourceSets.getByName("main").res.srcDir(layout.buildDirectory.dir("generated/fonts/res"))
 }
 
 dependencies {
@@ -80,3 +83,35 @@ val buildRust by tasks.registering(Exec::class) {
 if (project.hasProperty("buildRust")) {
     tasks.named("preBuild") { dependsOn(buildRust) }
 }
+
+// ---------------------------------------------------------------------------
+// Fonts. The app reads four font slots: R.font.app_light / app_regular / app_medium / app_bold.
+//   Default: Roboto, from fonts/roboto (committed, open-licensed).
+//   Your own fonts: put light / regular / medium / bold (.ttf or .otf, any case) in fonts-private/
+//   at the project root. That folder is git-ignored, so licensed or proprietary fonts never end up in
+//   the repository or in GitHub Actions builds - those always use Roboto.
+// ---------------------------------------------------------------------------
+val prepareFonts by tasks.registering {
+    val robotoDir = rootProject.file("fonts/roboto")
+    val privateDir = rootProject.file("fonts-private")
+    val outDir = layout.buildDirectory.dir("generated/fonts/res/font")
+    outputs.upToDateWhen { false }
+    doLast {
+        val dest = outDir.get().asFile
+        dest.deleteRecursively()
+        dest.mkdirs()
+        val used = mutableListOf<String>()
+        for (slot in listOf("light", "regular", "medium", "bold")) {
+            val custom = privateDir.listFiles { f ->
+                f.isFile && f.nameWithoutExtension.equals(slot, ignoreCase = true) &&
+                    f.extension.lowercase() in listOf("ttf", "otf")
+            }?.firstOrNull()
+            val src = custom ?: File(robotoDir, "roboto_$slot.ttf")
+            src.copyTo(File(dest, "app_$slot.${src.extension.lowercase()}"), overwrite = true)
+            used += "$slot=${if (custom != null) "fonts-private/" + custom.name else "Roboto"}"
+        }
+        logger.lifecycle("Kiro fonts: " + used.joinToString(", "))
+    }
+}
+
+tasks.named("preBuild") { dependsOn(prepareFonts) }

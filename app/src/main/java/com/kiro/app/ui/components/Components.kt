@@ -46,7 +46,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.kiro.app.data.Anime
 import com.kiro.app.ui.theme.KiroColors
-import com.kiro.app.ui.theme.Roboto
+import com.kiro.app.ui.theme.AppFont
 
 const val POSTER_RATIO = 0.705f
 
@@ -56,8 +56,8 @@ fun KiroLogo(modifier: Modifier = Modifier) {
         text = "KIRO",
         modifier = modifier,
         color = Color.White,
-        fontFamily = Roboto,
-        fontWeight = FontWeight.Black,
+        fontFamily = AppFont,
+        fontWeight = FontWeight.Bold,
         fontSize = 30.sp,
         letterSpacing = 3.sp,
     )
