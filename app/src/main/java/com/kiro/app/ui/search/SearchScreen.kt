@@ -23,10 +23,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Search
+import com.kiro.app.ui.icons.FeatherIcons
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -110,11 +107,11 @@ private fun SearchField(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),
         placeholder = { Text("Search anime, e.g. Naruto") },
-        leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+        leadingIcon = { Icon(FeatherIcons.Search, contentDescription = null) },
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = onClear) {
-                    Icon(Icons.Filled.Close, contentDescription = "Clear search")
+                    Icon(FeatherIcons.X, contentDescription = "Clear search")
                 }
             }
         },
@@ -158,7 +155,7 @@ private fun ResultsContent(
 
         state.results.isNotEmpty() -> Box(Modifier.fillMaxSize()) {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Adaptive(100.dp),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = bottomPadding + 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -181,7 +178,7 @@ private fun ResultsContent(
                         )
                         if (genre != null) {
                             IconButton(onClick = onClearGenre) {
-                                Icon(Icons.Filled.Close, contentDescription = "Close genre")
+                                Icon(FeatherIcons.X, contentDescription = "Close genre")
                             }
                         }
                     }
@@ -219,7 +216,7 @@ private fun DiscoverContent(
     onOpen: (Anime) -> Unit,
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
+        columns = GridCells.Adaptive(100.dp),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = bottomPadding + 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -253,7 +250,7 @@ private fun DiscoverContent(
                                 .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(Icons.Outlined.History, contentDescription = null, tint = KiroColors.TextSecondary)
+                            Icon(FeatherIcons.Clock, contentDescription = null, tint = KiroColors.TextSecondary)
                             Text(
                                 text = q,
                                 color = Color.White,
@@ -264,7 +261,7 @@ private fun DiscoverContent(
                             )
                             IconButton(onClick = { onRecentRemove(q) }, modifier = Modifier.size(36.dp)) {
                                 Icon(
-                                    Icons.Filled.Close,
+                                    FeatherIcons.X,
                                     contentDescription = "Remove $q",
                                     tint = KiroColors.TextSecondary,
                                 )

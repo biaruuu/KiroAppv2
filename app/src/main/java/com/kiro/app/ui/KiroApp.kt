@@ -7,18 +7,19 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Search
+import com.kiro.app.ui.icons.FeatherIcons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,6 +53,7 @@ fun KiroApp(
     searchVm: SearchViewModel = viewModel(),
 ) {
     val context = LocalContext.current
+    val wide = LocalConfiguration.current.screenWidthDp >= 840
     val home by homeVm.state.collectAsStateWithLifecycle()
     val search by searchVm.state.collectAsStateWithLifecycle()
 
@@ -67,10 +70,12 @@ fun KiroApp(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = { KiroBottomBar(selected = tab, onSelect = { tab = it }) },
+        bottomBar = { if (!wide) KiroBottomBar(selected = tab, onSelect = { tab = it }) },
     ) { padding ->
         val bottom = padding.calculateBottomPadding()
-        Box(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxSize()) {
+            if (wide) KiroRail(selected = tab, onSelect = { tab = it })
+            Box(Modifier.weight(1f).fillMaxHeight()) {
             when (tab) {
                 TAB_HOME -> HomeScreen(
                     state = home,
@@ -100,6 +105,7 @@ fun KiroApp(
                     onRetry = searchVm::onRetry,
                 )
             }
+            }
         }
     }
 
@@ -127,7 +133,7 @@ private fun KiroBottomBar(selected: Int, onSelect: (Int) -> Unit) {
             onClick = { onSelect(TAB_HOME) },
             icon = {
                 Icon(
-                    if (selected == TAB_HOME) Icons.Filled.Home else Icons.Outlined.Home,
+                    FeatherIcons.Home,
                     contentDescription = null,
                 )
             },
@@ -139,10 +145,38 @@ private fun KiroBottomBar(selected: Int, onSelect: (Int) -> Unit) {
             onClick = { onSelect(TAB_SEARCH) },
             icon = {
                 Icon(
-                    if (selected == TAB_SEARCH) Icons.Filled.Search else Icons.Outlined.Search,
+                    FeatherIcons.Search,
                     contentDescription = null,
                 )
             },
+            label = { Text("Search") },
+            colors = colors,
+        )
+    }
+}
+
+/** Side navigation for tablets and other wide screens. */
+@Composable
+private fun KiroRail(selected: Int, onSelect: (Int) -> Unit) {
+    val colors = NavigationRailItemDefaults.colors(
+        selectedIconColor = KiroColors.Accent,
+        selectedTextColor = KiroColors.Accent,
+        unselectedIconColor = Color.White,
+        unselectedTextColor = Color.White,
+        indicatorColor = Color.Transparent,
+    )
+    NavigationRail(containerColor = KiroColors.NavBar) {
+        NavigationRailItem(
+            selected = selected == TAB_HOME,
+            onClick = { onSelect(TAB_HOME) },
+            icon = { Icon(FeatherIcons.Home, contentDescription = null) },
+            label = { Text("Home") },
+            colors = colors,
+        )
+        NavigationRailItem(
+            selected = selected == TAB_SEARCH,
+            onClick = { onSelect(TAB_SEARCH) },
+            icon = { Icon(FeatherIcons.Search, contentDescription = null) },
             label = { Text("Search") },
             colors = colors,
         )

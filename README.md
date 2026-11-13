@@ -10,8 +10,7 @@ Anime streaming app (Home + Search) in the style of your screenshots.
 
 ## Run it
 1. Open the `Kiro` folder in Android Studio (Ladybug or newer) and let Gradle sync.
-   The first build downloads Roboto from Google Fonts into `res/font/roboto.ttf`
-   (if that fails, download Roboto from fonts.google.com and save it at that path).
+   Roboto is bundled in `app/src/main/res/font`, so nothing extra is downloaded.
 2. Press Run on a device or emulator (Android 8.0+).
 
 ## Rust search engine (optional)
@@ -36,3 +35,8 @@ Download the APK from the Releases page. To ship a new version:
 3. Commit and push, then open the Actions tab, choose "Release" and press Run workflow
    (or push a tag: `git tag vx.y.z && git push origin vx.y.z`).
 GitHub Actions builds the APK and publishes the release with that changelog section as the notes.
+
+## Credits
+- Roboto: Google Fonts (Apache License 2.0 / SIL OFL)
+- Feather icons: https://feathericons.com (MIT)
+- Anime data: AniList (https://anilist.co)

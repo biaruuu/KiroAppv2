@@ -18,12 +18,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CloudOff
+import com.kiro.app.ui.icons.FeatherIcons
+import com.kiro.app.ui.rememberPosterWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -115,7 +116,8 @@ fun AnimeCard(anime: Anime, onClick: () -> Unit, modifier: Modifier = Modifier) 
 
 /** Titled horizontal row of posters. */
 @Composable
-fun ShelfRow(title: String, items: List<Anime>, onOpen: (Anime) -> Unit) {
+fun AnimeShelf(title: String, items: List<Anime>, onOpen: (Anime) -> Unit) {
+    val cardWidth = rememberPosterWidth()
     Column {
         SectionTitle(title)
         Spacer(Modifier.height(12.dp))
@@ -124,7 +126,7 @@ fun ShelfRow(title: String, items: List<Anime>, onOpen: (Anime) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(items, key = { it.id }) { anime ->
-                AnimeCard(anime = anime, onClick = { onOpen(anime) }, modifier = Modifier.width(124.dp))
+                AnimeCard(anime = anime, onClick = { onOpen(anime) }, modifier = Modifier.width(cardWidth))
             }
         }
     }
@@ -146,6 +148,7 @@ fun Modifier.shimmer(): Modifier {
 
 @Composable
 fun SkeletonRow() {
+    val cardWidth = rememberPosterWidth()
     Column {
         Box(
             Modifier
@@ -158,7 +161,7 @@ fun SkeletonRow() {
         Spacer(Modifier.height(12.dp))
         Row(Modifier.padding(start = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             repeat(3) {
-                Column(Modifier.width(124.dp)) {
+                Column(Modifier.width(cardWidth)) {
                     Box(
                         Modifier
                             .fillMaxWidth()
@@ -204,7 +207,7 @@ fun ErrorView(message: String, onRetry: () -> Unit, modifier: Modifier = Modifie
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Icon(Icons.Outlined.CloudOff, contentDescription = null, tint = KiroColors.TextSecondary)
+        Icon(FeatherIcons.CloudOff, contentDescription = null, tint = KiroColors.TextSecondary, modifier = Modifier.size(40.dp))
         Spacer(Modifier.height(12.dp))
         Text("Something went wrong", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
         Spacer(Modifier.height(6.dp))

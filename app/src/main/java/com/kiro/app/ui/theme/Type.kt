@@ -1,30 +1,18 @@
 package com.kiro.app.ui.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import com.kiro.app.R
 
-/**
- * Roboto (Google Fonts) as a variable font bundled at res/font/roboto.ttf.
- * Each weight below is the same file with a different "wght" axis value.
- */
-@OptIn(ExperimentalTextApi::class)
-private fun robotoWeight(weight: Int) = Font(
-    resId = R.font.roboto,
-    weight = FontWeight(weight),
-    variationSettings = FontVariation.Settings(FontVariation.weight(weight)),
-)
-
+/** Roboto (Google Fonts), static files bundled in res/font. */
 val Roboto = FontFamily(
-    robotoWeight(400),
-    robotoWeight(500),
-    robotoWeight(700),
-    robotoWeight(900),
+    Font(R.font.roboto_regular, FontWeight.Normal),
+    Font(R.font.roboto_medium, FontWeight.Medium),
+    Font(R.font.roboto_bold, FontWeight.Bold),
+    Font(R.font.roboto_black, FontWeight.Black),
 )
 
 private fun TextStyle.withRoboto() = copy(fontFamily = Roboto)

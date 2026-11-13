@@ -14,8 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
+import com.kiro.app.ui.icons.FeatherIcons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -91,7 +90,7 @@ fun AnimeDetailSheet(anime: Anime, onDismiss: () -> Unit, onPlay: (Anime) -> Uni
                 shape = RoundedCornerShape(4.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
             ) {
-                Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                Icon(FeatherIcons.PlayFilled, contentDescription = null)
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = if (anime.trailerUrl.isNotEmpty()) "Play trailer" else "More info",

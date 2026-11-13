@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -24,9 +25,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.Notifications
+import com.kiro.app.ui.icons.FeatherIcons
+import com.kiro.app.ui.rememberHeroHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,7 +52,7 @@ import com.kiro.app.data.Anime
 import com.kiro.app.ui.components.AnimeImage
 import com.kiro.app.ui.components.ErrorView
 import com.kiro.app.ui.components.KiroLogo
-import com.kiro.app.ui.components.ShelfRow
+import com.kiro.app.ui.components.AnimeShelf
 import com.kiro.app.ui.components.SkeletonRow
 import com.kiro.app.ui.components.shimmer
 import com.kiro.app.ui.theme.KiroColors
@@ -74,6 +74,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val hasContent = state.hero.isNotEmpty() || state.rows.isNotEmpty()
+    val heroHeight = rememberHeroHeight()
 
     PullToRefreshBox(
         isRefreshing = state.refreshing,
@@ -81,7 +82,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
     ) {
         when {
-            !hasContent && state.loading -> HomeSkeleton()
+            !hasContent && state.loading -> HomeSkeleton(heroHeight)
             !hasContent && state.error != null -> ErrorView(state.error, onRetry)
             else -> LazyColumn(
                 state = listState,
@@ -93,6 +94,7 @@ fun HomeScreen(
                     item(key = "hero") {
                         HeroPager(
                             items = state.hero,
+                            heroHeight = heroHeight,
                             onOpen = onOpen,
                             onPlay = onPlay,
                             onBell = {
@@ -106,12 +108,12 @@ fun HomeScreen(
 
                 if (state.continueWatching.isNotEmpty()) {
                     item(key = "continue") {
-                        ShelfRow("Continue Watching", state.continueWatching, onOpen)
+                        AnimeShelf("Continue Watching", state.continueWatching, onOpen)
                     }
                 }
 
                 items(state.rows, key = { it.id }) { row ->
-                    ShelfRow(row.title, row.items, onOpen)
+                    AnimeShelf(row.title, row.items, onOpen)
                 }
 
                 if (state.loading) {
@@ -123,12 +125,12 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HomeSkeleton() {
+private fun HomeSkeleton(heroHeight: Dp) {
     Column(Modifier.fillMaxSize()) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .aspectRatio(HERO_RATIO)
+                .height(heroHeight)
                 .shimmer(),
         )
         Spacer(Modifier.height(28.dp))
@@ -141,6 +143,7 @@ private fun HomeSkeleton() {
 @Composable
 private fun HeroPager(
     items: List<Anime>,
+    heroHeight: Dp,
     onOpen: (Anime) -> Unit,
     onPlay: (Anime) -> Unit,
     onBell: () -> Unit,
@@ -160,14 +163,19 @@ private fun HeroPager(
     Box(
         Modifier
             .fillMaxWidth()
-            .aspectRatio(HERO_RATIO),
+            .height(heroHeight),
     ) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
             key = { items[it].id },
         ) { page ->
-            HeroPage(items[page], onOpen = { onOpen(items[page]) }, onPlay = { onPlay(items[page]) })
+            HeroPage(
+                anime = items[page],
+                compact = heroHeight < 340.dp,
+                onOpen = { onOpen(items[page]) },
+                onPlay = { onPlay(items[page]) },
+            )
         }
 
         Row(
@@ -180,7 +188,7 @@ private fun HeroPager(
         ) {
             KiroLogo()
             IconButton(onClick = onBell) {
-                Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = Color.White)
+                Icon(FeatherIcons.Bell, contentDescription = "Notifications", tint = Color.White)
             }
         }
 
@@ -203,7 +211,7 @@ private fun HeroPager(
 }
 
 @Composable
-private fun HeroPage(anime: Anime, onOpen: () -> Unit, onPlay: () -> Unit) {
+private fun HeroPage(anime: Anime, compact: Boolean, onOpen: () -> Unit, onPlay: () -> Unit) {
     Box(
         Modifier
             .fillMaxSize()
@@ -231,7 +239,8 @@ private fun HeroPage(anime: Anime, onOpen: () -> Unit, onPlay: () -> Unit) {
         Column(
             Modifier
                 .align(Alignment.BottomCenter)
-                .padding(start = 24.dp, end = 24.dp, bottom = 40.dp),
+                .widthIn(max = 600.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = if (compact) 28.dp else 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -245,7 +254,7 @@ private fun HeroPage(anime: Anime, onOpen: () -> Unit, onPlay: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
             val tagline = anime.synopsis.tagline()
-            if (tagline.isNotEmpty()) {
+            if (tagline.isNotEmpty() && !compact) {
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = tagline,
@@ -266,7 +275,7 @@ private fun HeroPage(anime: Anime, onOpen: () -> Unit, onPlay: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
                 contentPadding = PaddingValues(horizontal = 12.dp),
             ) {
-                Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                Icon(FeatherIcons.PlayFilled, contentDescription = null)
                 Spacer(Modifier.width(4.dp))
                 Text("Play", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }

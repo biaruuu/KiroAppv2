@@ -49,7 +49,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
 
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.activity:activity-compose:1.9.3")
@@ -61,35 +60,6 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
-
-// ---------------------------------------------------------------------------
-// Roboto (Google Font). The variable TTF is downloaded once into res/font.
-// If you are offline, download "Roboto[wdth,wght].ttf" from
-// https://fonts.google.com/specimen/Roboto and save it as
-// app/src/main/res/font/roboto.ttf
-// ---------------------------------------------------------------------------
-val robotoFile = layout.projectDirectory.file("src/main/res/font/roboto.ttf").asFile
-
-val fetchRoboto by tasks.registering {
-    onlyIf { !robotoFile.exists() }
-    doLast {
-        robotoFile.parentFile.mkdirs()
-        val url = "https://raw.githubusercontent.com/google/fonts/main/ofl/roboto/Roboto%5Bwdth%2Cwght%5D.ttf"
-        try {
-            java.net.URI(url).toURL().openStream().use { input ->
-                robotoFile.outputStream().use { out -> input.copyTo(out) }
-            }
-        } catch (e: Exception) {
-            robotoFile.delete()
-            throw GradleException(
-                "Could not download Roboto (${e.message}). Download Roboto from Google Fonts and save it as " +
-                    robotoFile.absolutePath
-            )
-        }
-    }
-}
-
-tasks.named("preBuild") { dependsOn(fetchRoboto) }
 
 // ---------------------------------------------------------------------------
 // Optional: build the Rust search engine as part of the Gradle build.
